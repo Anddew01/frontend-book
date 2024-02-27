@@ -1,24 +1,19 @@
-import axios from 'axios'
-import {useEffect, useState} from 'react'
+// UserHome.jsx
+import React from "react";
 
-export default function UserHome() {
-  const [todos, setTodos] = useState([])
-
-  useEffect( ()=>{
-    const run = async()=>{
-      let token = localStorage.getItem('token')
-      const rs = await axios.get('http://localhost:8889/todos', {
-        headers : { Authorization : `Bearer ${token}`}
-      })
-      setTodos(rs.data.todos)
-    }
-    run()
-  }, [] )
-
+const UserHome = () => {
   return (
-    <>
-    <div>UserHome</div>
-    { JSON.stringify(todos)}
-    </>
-  )
-}
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-7xl font-bold mb-6 text-purple-500">
+          ยืมคืนหนังสือ
+        </h1>
+        <p className="text-2xl text-gray-500 mb-10">
+          ยินดีต้อนรับสู่ระบบยืมคืนหนังสือของเรา
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default UserHome;
