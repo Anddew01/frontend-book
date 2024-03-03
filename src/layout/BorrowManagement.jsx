@@ -1,20 +1,37 @@
-// BorrowManagement.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import EditBorrowForm from "./EditBorrowForm";
 
 const BorrowManagement = () => {
   const [borrows, setBorrows] = useState([]);
-  const [showEditForm, setShowEditForm] = useState(false);
-  const [editBorrowId, setEditBorrowId] = useState(null);
 
-  const handleEditBorrow = (editedBorrow) => {
-    setBorrows(
-      borrows.map((borrow) =>
-        borrow.id === editedBorrow.id ? editedBorrow : borrow
-      )
-    );
-    setShowEditForm(false);
+  const handleReturn = async (borrowId) => {
+    try {
+      const shouldReturn = window.confirm(
+        "คุณแน่ใจหรือไม่ที่จะทำการคืนหนังสือ?"
+      );
+      if (!shouldReturn) {
+        return;
+      }
+
+      const response = await axios.put(
+        `http://localhost:8889/borrow/borrows/${borrowId}`,
+        { status: "คืน" },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      // อัพเดท borrows state หลังจากทำรายการคืนสำเร็จ
+      setBorrows((borrows) =>
+        borrows.map((borrow) =>
+          borrow.id === borrowId ? response.data.result : borrow
+        )
+      );
+    } catch (error) {
+      console.error(error.message);
+    }
   };
 
   useEffect(() => {
@@ -40,18 +57,21 @@ const BorrowManagement = () => {
           }
         );
 
-        const booksResponse = await axios.get("http://localhost:8889/book/books", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const booksResponse = await axios.get(
+          "http://localhost:8889/book/books",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         const borrowDataWithDetails = borrowResponse.data.map((borrow) => {
           const book = booksResponse.data.find(
             (book) => book.id === borrow.bookId
           );
           const member = membersResponse.data.find(
-            (member) => member.id === borrow.userId
+            (member) => member.id === borrow.memberId
           );
 
           return {
@@ -72,12 +92,20 @@ const BorrowManagement = () => {
 
   const handleDelete = async (borrowId) => {
     try {
+      const shouldDelete = window.confirm("คุณแน่ใจหรือไม่ที่จะลบรายการนี้?");
+      if (!shouldDelete) {
+        return;
+      }
+
       await axios.delete(`http://localhost:8889/borrow/borrows/${borrowId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      setBorrows(borrows.filter((borrow) => borrow.id !== borrowId));
+
+      setBorrows((borrows) =>
+        borrows.filter((borrow) => borrow.id !== borrowId)
+      );
     } catch (error) {
       console.error(error.message);
     }
@@ -85,13 +113,6 @@ const BorrowManagement = () => {
 
   return (
     <div className="p-5 border w-4/6 min-w-[1000px] mx-auto rounded mt-5">
-      {showEditForm && (
-        <EditBorrowForm
-          borrowId={editBorrowId}
-          onClose={() => setShowEditForm(false)}
-          onEdit={handleEditBorrow}
-        />
-      )}
       <h2 className="text-3xl m-5">การยืมคืนหนังสือ</h2>
       <ul>
         {borrows.map((borrow) => (
@@ -100,16 +121,15 @@ const BorrowManagement = () => {
             <div className="m-1 mb-3">ชื่อสมาชิก : {borrow.memberName}</div>
             <div className="m-1 mb-3">วันที่ยืม : {borrow.borrowDate}</div>
             <div className="m-1 mb-3">สถานะ : {borrow.status}</div>
-            <div>
-              <button
-                onClick={() => {
-                  setShowEditForm(true);
-                  setEditBorrowId(borrow.id);
-                }}
-                className="btn btn-outline btn-info btn-sm mr-2 ml-2 mb-2"
-              >
-                แก้ไข
-              </button>
+            <div className="flex">
+              {borrow.status === "ยืม" && (
+                <button
+                  onClick={() => handleReturn(borrow.id)}
+                  className="btn btn-outline btn-info btn-sm mr-2"
+                >
+                  คืนหนังสือ
+                </button>
+              )}
               <button
                 onClick={() => handleDelete(borrow.id)}
                 className="btn btn-outline btn-info btn-sm"

@@ -46,6 +46,10 @@ const MemberManagement = () => {
 
   const handleDelete = async (memberId) => {
     try {
+      const shouldDelete = window.confirm("คุณแน่ใจหรือไม่ที่จะลบรายการนี้?");
+      if (!shouldDelete) {
+        return;
+      }
       await axios.delete(`http://localhost:8889/member/members/${memberId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,

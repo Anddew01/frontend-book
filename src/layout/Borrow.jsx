@@ -74,11 +74,13 @@ const BorrowBookForm = () => {
     e.preventDefault();
 
     try {
+      const selectedMemberId = formData.memberId; // เก็บ memberId ที่เลือกจาก dropdown
+
       const response = await axios.post(
         "http://localhost:8889/borrow/borrows",
         {
           ...formData,
-          userId: userId,
+          userId: selectedMemberId, // ให้ใช้ memberId ที่ถูกเลือกจาก dropdown
         },
         {
           headers: {
@@ -112,11 +114,11 @@ const BorrowBookForm = () => {
           </div>
           <select
             name="memberId"
-            value={formData.memberId}
+            value={formData.memberId} // ให้ใช้ค่าจาก formData
             onChange={handleChange}
             className="input input-bordered w-full max-w-xs"
           >
-            <option value="">-- เลือก Member --</option>
+            <option value="">-- เลือก ชื่อสมาชิก --</option>
             {members.map((member) => (
               <option key={member.id} value={member.id}>
                 {member.name}
@@ -124,7 +126,6 @@ const BorrowBookForm = () => {
             ))}
           </select>
         </label>
-
         <label className="form-control w-full max-w-xs">
           <div className="label">
             <span className="label-text">ชื่อหนังสือ</span>

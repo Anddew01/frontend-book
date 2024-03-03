@@ -7,9 +7,9 @@ import UserHome from "../layout/UserHome";
 import BorrowBookForm from "../layout/Borrow";
 import AddBookForm from "../layout/AddBookForm";
 import MemberForm from "../layout/MemberForm";
-import BookList from "../layout/BookManagement";
 import MemberManagement from "../layout/MemberManagement";
 import BorrowManagement from "../layout/BorrowManagement";
+import BookManagement from "../layout/BookManagement";
 
 const guestRouter = createBrowserRouter(
   [
@@ -45,7 +45,7 @@ const userRouter = createBrowserRouter(
         { path: "/borrow", element: <BorrowBookForm /> },
         { path: "/borrowList", element: <BorrowManagement /> },
         { path: "/book", element: <AddBookForm /> },
-        { path: "/bookList", element: <BookList /> },
+        { path: "/bookList", element: <BookManagement /> },
         { path: "/member", element: <MemberForm /> },
         { path: "/memberList", element: <MemberManagement /> },
       ],

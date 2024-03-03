@@ -1,4 +1,3 @@
-// AddBookForm.js
 import React, { useState } from "react";
 import axios from "axios";
 
@@ -8,13 +7,14 @@ const AddBookForm = () => {
     author: "",
     genre: "",
     pageCount: 0,
+    image: null,
   });
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: type === "file" ? e.target.files[0] : value,
     }));
   };
 
@@ -22,32 +22,37 @@ const AddBookForm = () => {
     e.preventDefault();
 
     try {
+      const formDataForUpload = new FormData();
+      formDataForUpload.append("title", formData.title);
+      formDataForUpload.append("author", formData.author);
+      formDataForUpload.append("genre", formData.genre);
+      formDataForUpload.append("pageCount", formData.pageCount);
+      formDataForUpload.append("image", formData.image);
+
       const response = await axios.post(
         "http://localhost:8889/book/books",
-        formData,
+        formDataForUpload,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "multipart/form-data",
           },
         }
       );
 
       console.log(response.data);
 
-      // แสดงข้อความเมื่อการเพิ่มหนังสือสำเร็จ
       alert("เพิ่มหนังสือเรียบร้อย");
 
-      // รีเซ็ตค่าข้อมูลหลังจากเพิ่มหนังสือเรียบร้อย
       setFormData({
         title: "",
         author: "",
         genre: "",
         pageCount: 0,
+        image: null,
       });
     } catch (error) {
-      console.error(error.message);
-
-      // แสดงข้อผิดพลาดที่เกิดขึ้นในส่วนของ frontend
+      console.error("Server Response:", error.response.data);
       alert("เกิดข้อผิดพลาดขณะเพิ่มหนังสือ กรุณาลองอีกครั้ง");
     }
   };
@@ -104,6 +109,23 @@ const AddBookForm = () => {
             className="input input-bordered w-full max-w-xs"
             name="pageCount"
             value={formData.pageCount}
+            onChange={handleChange}
+          />
+        </label>
+
+        <label className="form-control w-full max-w-xs">
+          <div className="label">
+            <span className="label-text">รูปภาพ</span>
+          </div>
+          <img
+            src={formData.image && URL.createObjectURL(formData.image)}
+            alt="Book"
+            className="w-32 h-32"
+          />
+          <input
+            type="file"
+            className="input input-bordered w-full max-w-xs"
+            name="image"
             onChange={handleChange}
           />
         </label>
