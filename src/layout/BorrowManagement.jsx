@@ -13,7 +13,7 @@ const BorrowManagement = () => {
         return;
       }
 
-      const response = await axios.put(
+      await axios.put(
         `http://localhost:8889/borrow/borrows/${borrowId}`,
         { status: "คืน" },
         {
@@ -26,14 +26,14 @@ const BorrowManagement = () => {
       // อัพเดท borrows state หลังจากทำรายการคืนสำเร็จ
       setBorrows((borrows) =>
         borrows.map((borrow) =>
-          borrow.id === borrowId ? response.data.result : borrow
+          borrow.id === borrowId ? { ...borrow, status: "คืน" } : borrow
         )
       );
     } catch (error) {
       console.error(error.message);
     }
   };
-
+  
   useEffect(() => {
     const fetchBorrows = async () => {
       try {
@@ -77,7 +77,9 @@ const BorrowManagement = () => {
           return {
             ...borrow,
             bookTitle: book ? book.title : "N/A",
+            memberIdCard: member ? member.memberIdCard : "N/A",
             memberName: member ? member.name : "N/A",
+            memberAddress: member ? member.address : "N/A",
           };
         });
 
@@ -118,7 +120,9 @@ const BorrowManagement = () => {
         {borrows.map((borrow) => (
           <li key={borrow.id} className="mb-2">
             <div className="m-1">ชื่อหนังสือ : {borrow.bookTitle}</div>
+            <div className="m-1 mb-3">เลขบัตร : {borrow.memberIdCard}</div>
             <div className="m-1 mb-3">ชื่อสมาชิก : {borrow.memberName}</div>
+            <div className="m-1 mb-3">ที่อยู่ : {borrow.memberAddress}</div>
             <div className="m-1 mb-3">วันที่ยืม : {borrow.borrowDate}</div>
             <div className="m-1 mb-3">สถานะ : {borrow.status}</div>
             <div className="flex">
